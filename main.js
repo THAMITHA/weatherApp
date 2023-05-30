@@ -1,3 +1,4 @@
+var isCelsius = true;
 function GetInfo() {
   var newName = document.getElementById("cityInput");
   var cityName = document.getElementById("cityName");
@@ -8,23 +9,28 @@ function GetInfo() {
       newName.value +
       "&appid=32ba0bfed592484379e51106cef3f204"
   )
-    .then((response) => response.json())
-    .then((data) => {
-      //Getting the min and max values for each day
-      for (i = 0; i < 5; i++) {
-        document.getElementById("day" + (i + 1) + "Min").innerHTML =
-          "Min: " +
-          Number(data.list[i].main.temp_min - 273.15).toFixed(1) +
-          "°";
-        //Number(1.3450001).toFixed(2); // 1.35
+  .then((response) => response.json())
+  .then((data) => {
+    // Getting the min and max values for each day
+    for (i = 0; i < 5; i++) {
+      var minTemp = data.list[i].main.temp_min;
+      var maxTemp = data.list[i].main.temp_max;
+
+      if (isCelsius) {
+        minTemp = minTemp - 273.15;
+        maxTemp = maxTemp - 273.15;
+      } else {
+        minTemp = (minTemp * 9) / 5 - 459.67;
+        maxTemp = (maxTemp * 9) / 5 - 459.67;
       }
 
-      for (i = 0; i < 5; i++) {
-        document.getElementById("day" + (i + 1) + "Max").innerHTML =
-          "Max: " +
-          Number(data.list[i].main.temp_max - 273.15).toFixed(2) +
-          "°";
-      }
+      document.getElementById("day" + (i + 1) + "Min").innerHTML =
+        "Min: " + minTemp.toFixed(1) + (isCelsius ? "°C" : "°F");
+        
+      document.getElementById("day" + (i + 1) + "Max").innerHTML =
+        "Max: " + maxTemp.toFixed(1) + (isCelsius ? "°C" : "°F");
+    }
+
       //------------------------------------------------------------
 
       //Getting Weather Icons
@@ -73,3 +79,7 @@ for (i = 0; i < 5; i++) {
   document.getElementById("day" + (i + 1)).innerHTML = weekday[CheckDay(i)];
 }
 
+function toggleTemperatureUnit() {
+    isCelsius = !isCelsius;
+    GetInfo();
+  }
